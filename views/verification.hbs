@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BILLER Application - OTP Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .conatiner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .email-container {
+            background-color: #fff;
+            padding: 20px;
+            width: 50%;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 2px solid #7411c0;
+        }
+
+        .company-logo {
+            width: 20%;
+            margin-bottom: 20px;
+        }
+
+        .otp-code {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #7411c0;
+        }
+
+        .instructions {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .cta-btn {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .company-info {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .copyright {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="conatiner">
+        <div class="email-container">
+            <img src="https://i.ibb.co/61FJQJf/logo.png" alt="Company Logo" class="company-logo">
+            <h2>Biller Admin - OTP Verification</h2>
+            <p>Dear User</p>
+
+            <p class="otp-code">Your OTP: <strong>{{otp}}</strong></p>
+
+            <p class="instructions">Please use the following OTP to complete the verification process for the CICO Admin
+                panel.</p>
+
+            <div class="company-info">
+                <p>Rao Information Technology</p>
+                <p>T.N.Rao College, Nr, Saurashtra University Campus, Rajkot</p>
+                <p>Contact: +91 7808780826</p>
+            </div>
+
+            <div class="copyright">
+                <p>&copy; 2024 CICO Rewards & Recognition.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
