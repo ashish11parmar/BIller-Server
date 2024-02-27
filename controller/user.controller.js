@@ -9,7 +9,7 @@ userController.adminSignup = async (req, res) => {
     });
 }
 
-userController.verifyOTP = async (req) => {
+userController.verifyOTP = async (req, res) => {
     userService.verifyOTP(req, res).then((response) => {
         res.status(response.status).json(response);
     }).catch((error) => {
