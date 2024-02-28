@@ -39,6 +39,7 @@ userService.verifyOTP = async (req) => {
             if (!user) {
                 resolve({ msg: "User not found.", status: 404 });
             }
+            console.log('user >> ', user.otp, otp);
             if (user.otp !== otp) {
                 resolve({ msg: "The OTP entered is invalid please verify its accuracy.", status: 401 });
             }
@@ -46,10 +47,16 @@ userService.verifyOTP = async (req) => {
                 resolve({ msg: "OTP has expired.", status: 401 });
             }
             user.isVerified = true;
-            await user.save();
             await User.findOneAndUpdate({ email }, { $unset: { otp: 1 } }, { new: true });
             await User.findOneAndUpdate({ email }, { $unset: { otpExpire: 1 } }, { new: true });
-            resolve({ msg: "Email verified successfully.", status: 200 })
+            if(req.body.actionType == 'signup'){
+                await user.save();
+                resolve({ msg: "Email verified successfully.", status: 200 })
+            }else{
+                const token = jwt.sign({ user: user._id }, 'shhhhh'); // need to replace with env variable and expire time
+                await User.findOneAndUpdate({ email }, { $set: { auth_token: token } });
+                resolve({ msg: "Email verified successfully.", status: 200, token: token })
+            }
         } catch (error) {
             console.error("Error verifying OTP:", error);
             reject({ msg: "Internal Server Error.", status: 500, data: error });
@@ -97,9 +104,16 @@ userService.adminLogin = async (req) => {
             }else{
                 if (!user.isVerified) {
                     resolve({ msg: "Email not verified.", status: 401 });
-                }   
-                const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-                resolve({ msg: "Login successful.", status: 200, token });
+                }
+
+                // Generate a new OTP
+                const otp = Math.floor(1000 + Math.random() * 9000);
+                const expire = Date.now() + 600 * 1000; // 10 minute from now 
+                sendVerificationCode(email, otp);
+                await User.findOneAndUpdate({ email }, { $set: { otp: otp }, }, { new: true })
+                await User.findOneAndUpdate({ email }, { $set: { otpExpire: expire } }, { new: true })
+
+                resolve({ msg: "We've sent an OTP to your email. Please verify it to login.", status: 200 });
             }
         } catch (error) {
             console.error("Error logging in:", error);

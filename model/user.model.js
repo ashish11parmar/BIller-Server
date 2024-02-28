@@ -28,6 +28,9 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
+    auth_token: {
+        type: String
+    },
 })
 
 const User = mongoose.model('user', userSchema);
