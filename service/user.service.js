@@ -53,9 +53,10 @@ userService.verifyOTP = async (req) => {
                 await user.save();
                 resolve({ msg: "Email verified successfully.", status: 200 })
             }else{
-                const token = jwt.sign({ user: user._id }, 'shhhhh'); // need to replace with env variable and expire time
+                // generate token
+                const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
                 await User.findOneAndUpdate({ email }, { $set: { auth_token: token } });
-                resolve({ msg: "Email verified successfully.", status: 200, token: token })
+                resolve({ msg: "You are logged in successfully.", status: 200, token: token });
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
