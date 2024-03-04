@@ -28,7 +28,7 @@ userService.adminSignup = async (req) => {
     })
 }
 
-userService.verifyOTP = async (req) => {
+userService.verifyOTP = async (req, res) => {
     return new Promise(async (resolve, reject) => {
         try {
             const { email, otp } = req.body;
