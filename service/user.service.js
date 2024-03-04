@@ -10,8 +10,8 @@ userService.adminSignup = async (req) => {
     return new Promise(async (resolve, reject) => {
         try {
             const response = await User.findOne({ email: req.body.email })
-            if (response) { 
-                resolve({ msg: "user already exists.", status: 400 }) 
+            if (response) {
+                return resolve({ msg: "user already exists.", status: 400 })
             }
             const otp = Math.floor(1000 + Math.random() * 9000);
             const expire = Date.now() + 600 * 1000; // 10 minute from now
@@ -20,7 +20,7 @@ userService.adminSignup = async (req) => {
             sendVerificationCode(req.body.email, otp)
             const user = new User(req.body);
             await user.save();
-            resolve({ msg: "user registered succesfully", status: 201 })
+            return resolve({ msg: "user registered succesfully", status: 201 })
         } catch (error) {
             console.log(error);
             reject({ msg: "Internal Server Error...", status: 500, data: error })
@@ -33,30 +33,31 @@ userService.verifyOTP = async (req, res) => {
         try {
             const { email, otp } = req.body;
             if (!email || !otp) {
-                resolve({ msg: "OTP is required.", status: 400 });
+                return resolve({ msg: "OTP is required.", status: 400 });
             }
             const user = await User.findOne({ email });
+            console.log(user);
             if (!user) {
-                resolve({ msg: "User not found.", status: 404 });
+                return resolve({ msg: "User not found.", status: 404 });
             }
             console.log('user >> ', user.otp, otp);
             if (user.otp !== otp) {
-                resolve({ msg: "The OTP entered is invalid please verify its accuracy.", status: 401 });
+                return resolve({ msg: "The OTP entered is invalid please verify its accuracy.", status: 401 });
             }
             if (user.otpExpire && new Date() > new Date(user.otpExpire)) {
-                resolve({ msg: "OTP has expired.", status: 401 });
+                return resolve({ msg: "OTP has expired.", status: 401 });
             }
-            user.isVerified = true;
             await User.findOneAndUpdate({ email }, { $unset: { otp: 1 } }, { new: true });
             await User.findOneAndUpdate({ email }, { $unset: { otpExpire: 1 } }, { new: true });
-            if(req.body.actionType == 'signup'){
+            if (req.body.actionType == 'signup') {
+                user.isVerified = true;
                 await user.save();
                 resolve({ msg: "Email verified successfully.", status: 200 })
-            }else{
+            } else {
                 // generate token
                 const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: '7d' });
                 await User.findOneAndUpdate({ email }, { $set: { auth_token: token } });
-                resolve({ msg: "You are logged in successfully.", status: 200, token: token });
+                return resolve({ msg: "You are logged in successfully.", status: 200, token: token });
             }
         } catch (error) {
             console.error("Error verifying OTP:", error);
@@ -70,11 +71,11 @@ userService.resendOtp = async (req) => {
         try {
             const { email } = req.body;
             if (!email) {
-                resolve({ msg: "Email is required.", status: 400 });
+                return resolve({ msg: "Email is required.", status: 400 });
             }
             const user = await User.findOne({ email });
             if (!user) {
-                resolve({ msg: "User not found.", status: 404 });
+                return resolve({ msg: "User not found.", status: 404 });
             }
             // Generate a new OTP
             const otp = Math.floor(1000 + Math.random() * 9000);
@@ -97,14 +98,14 @@ userService.adminLogin = async (req) => {
         try {
             const email = req.body.email;
             if (!email) {
-                resolve({ msg: "Email is required.", status: 400 });
+                return resolve({ msg: "Email is required.", status: 400 });
             }
             const user = await User.findOne({ email: email });
             if (!user) {
-                resolve({ msg: "User not found.", status: 404 });
-            }else{
+                return resolve({ msg: "User not found.", status: 404 });
+            } else {
                 if (!user.isVerified) {
-                    resolve({ msg: "Email not verified.", status: 401 });
+                    return resolve({ msg: "Email not verified.", status: 401 });
                 }
 
                 // Generate a new OTP
@@ -145,9 +146,9 @@ const sendVerificationCode = async (email, otp) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.error("Error sending email:", error);
+            return console.error("Error sending email:", error);
         } else {
-            res.status(200).json({ msg: "Email sent successfully." });
+            return res.status(200).json({ msg: "Email sent successfully." });
         }
     });
 }
